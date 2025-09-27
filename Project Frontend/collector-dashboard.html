@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recyclo - Collector Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #4CAF50);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .status-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .status-btn.offline {
+            background: #f44336;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .pickup-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pickup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .pickup-id {
+            font-weight: bold;
+        }
+
+        .distance-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .pickup-details {
+            margin-bottom: 1rem;
+        }
+
+        .pickup-value {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .value-amount {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .pickup-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-accept {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .route-map {
+            height: 200px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 2px dashed #2196F3;
+        }
+
+        .earnings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .earning-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pickup-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🚚 Recyclo - Collector</div>
+        <div class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="user-dashboard.html">👤 User</a>
+            <a href="collector-dashboard.html">🚚 Collector</a>
+            <a href="recycler-dashboard.html">♻️ Recycler</a>
+            <a href="admin-dashboard.html">⚙️ Admin</a>
+        </div>
+        <button class="status-btn" id="statusBtn" onclick="toggleStatus()">🟢 Online</button>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">₹8,450</div>
+                <div>Today's Earnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div>Items Collected</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">4.8 ⭐</div>
+                <div>Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">23 km</div>
+                <div>Distance Today</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h3>📋 Available Pickup Requests</h3>
+                
+                <div class="pickup-item">
+                    <div class="pickup-header">
+                        <div class="pickup-id">#REC-2025-0156</div>
+                        <div class="distance-badge">2.3 km</div>
+                    </div>
+                    <div class="pickup-details">
+                        <div><strong>📱 iPhone 12 Pro</strong></div>
+                        <div style="color: #666;">📍 Green Street, Eco Colony</div>
+                        <div style="color: #FF9800;">⏰ Today 2:00-4:00 PM</div>
+                    </div>
+                    <div class="pickup-value">
+                        <div class="value-amount">₹850</div>
+                        <div>Commission: ₹85</div>
+                    </div>
+                    <div class="pickup-actions">
+                        <button class="btn btn-accept" onclick="acceptPickup('REC-2025-0156')">✅ Accept</button>
+                        <button class="btn btn-reject" onclick="rejectPickup('REC-2025-0156')">❌ Reject</button>
+                    </div>
+                </div>
+
+                <div class="pickup-item">
+                    <div class="pickup-header">
+                        <div class="pickup-id">#REC-2025-0157</div>
+                        <div class="distance-badge">3.7 km</div>
+                    </div>
+                    <div class="pickup-details">
+                        <div><strong>💻 MacBook Air 2020</strong></div>
+                        <div style="color: #666;">📍 Tech Avenue, IT Park</div>
+                        <div style="color: #FF9800;">⏰ Tomorrow 10:00-12:00 PM</div>
+                    </div>
+                    <div class="pickup-value">
+                        <div class="value-amount">₹12,500</div>
+                        <div>Commission: ₹625</div>
+                    </div>
+                    <div class="pickup-actions">
+                        <button class="btn btn-accept" onclick="acceptPickup('REC-2025-0157')">✅ Accept</button>
+                        <button class="btn btn-reject" onclick="rejectPickup('REC-2025-0157')">❌ Reject</button>
+                    </div>
+                </div>
+
+                <div class="pickup-item">
+                    <div class="pickup-header">
+                        <div class="pickup-id">#REC-2025-0158</div>
+                        <div class="distance-badge">1.8 km</div>
+                    </div>
+                    <div class="pickup-details">
+                        <div><strong>📱 Samsung Galaxy S21</strong></div>
+                        <div style="color: #666;">📍 Smart City, Central Nagpur</div>
+                        <div style="color: #FF9800;">⏰ Today 4:00-6:00 PM</div>
+                    </div>
+                    <div class="pickup-value">
+                        <div class="value-amount">₹6,200</div>
+                        <div>Commission: ₹310</div>
+                    </div>
+                    <div class="pickup-actions">
+                        <button class="btn btn-accept" onclick="acceptPickup('REC-2025-0158')">✅ Accept</button>
+                        <button class="btn btn-reject" onclick="rejectPickup('REC-2025-0158')">❌ Reject</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <h3>🗺️ Route Map</h3>
+                    <div class="route-map">
+                        <div style="text-align: center; color: #666;">
+                            <div style="font-size: 2rem;">🗺️</div>
+                            <div>GPS Route Optimization</div>
+                            <div style="font-size: 0.8rem;">Total: 8.2 km | ETA: 45 min</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="startNavigation()">🧭 Start Navigation</button>
+                </div>
+
+                <div class="card">
+                    <h3>💰 Earnings & Performance</h3>
+                    <div class="earnings-grid">
+                        <div class="earning-item">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #4CAF50;">₹8,450</div>
+                            <div style="font-size: 0.8rem;">Today</div>
+                        </div>
+                        <div class="earning-item">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #4CAF50;">₹52,300</div>
+                            <div style="font-size: 0.8rem;">This Week</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>⭐ Rating: 4.8 (127 reviews)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Reliability Score</span>
+                            <span style="color: #4CAF50; font-weight: bold;">94%</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">📊 View Analytics</button>
+                    <button class="btn btn-primary" style="width: 100%;">💳 Payout Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isOnline = true;
+
+        function toggleStatus() {
+            const btn = document.getElementById('statusBtn');
+            isOnline = !isOnline;
+            
+            if (isOnline) {
+                btn.innerHTML = '🟢 Online';
+                btn.classList.remove('offline');
+                alert('You are now online! You can receive pickup requests.');
+            } else {
+                btn.innerHTML = '🔴 Offline';
+                btn.classList.add('offline');
+                alert('You are now offline. No new requests will be assigned.');
+            }
+        }
+
+        function acceptPickup(pickupId) {
+            if (!isOnline) {
+                alert('Please go online to accept pickups!');
+                return;
+            }
+            
+            alert(`Pickup ${pickupId} accepted! Customer has been notified.`);
+            
+            // Remove the pickup item
+            event.target.closest('.pickup-item').style.display = 'none';
+        }
+
+        function rejectPickup(pickupId) {
+            alert(`Pickup ${pickupId} rejected. Looking for other collectors.`);
+            event.target.closest('.pickup-item').style.display = 'none';
+        }
+
+        function startNavigation() {
+            alert('GPS Navigation started!\n\nNext Stop: Green Street, Eco Colony\nETA: 12 minutes\nDistance: 2.3 km');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recyclo - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #4CAF50);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #4CAF50;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .stat-card.users::before {
+            background: #2196F3;
+        }
+
+        .stat-card.pickups::before {
+            background: #4CAF50;
+        }
+
+        .stat-card.revenue::before {
+            background: #FF9800;
+        }
+
+        .stat-card.certificates::before {
+            background: #9C27B0;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            color: #4CAF50;
+            margin-top: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .activity-icon.user {
+            background: #e3f2fd;
+            color: #2196F3;
+        }
+
+        .activity-icon.pickup {
+            background: #e8f5e8;
+            color: #4CAF50;
+        }
+
+        .activity-icon.payment {
+            background: #fff3e0;
+            color: #FF9800;
+        }
+
+        .activity-icon.alert {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #999;
+            margin-left: auto;
+        }
+
+        .alert-item {
+            padding: 1rem;
+            border-left: 4px solid;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-item.high {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .alert-item.medium {
+            border-color: #FF9800;
+            background: #fff3e0;
+        }
+
+        .alert-item.low {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-suspended {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .monitor-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .monitor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .monitor-value.good {
+            color: #4CAF50;
+        }
+
+        .monitor-value.warning {
+            color: #FF9800;
+        }
+
+        .monitor-value.danger {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">⚙️ Recyclo - Admin</div>
+        <div class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="user-dashboard.html">👤 User</a>
+            <a href="collector-dashboard.html">🚚 Collector</a>
+            <a href="recycler-dashboard.html">♻️ Recycler</a>
+            <a href="admin-dashboard.html">⚙️ Admin</a>
+        </div>
+        <div class="system-status">
+            <div class="status-dot"></div>
+            <div>System Online</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card users">
+                <div class="stat-value">12,847</div>
+                <div>Total Users</div>
+                <div class="stat-change">+234 this week</div>
+            </div>
+            <div class="stat-card pickups">
+                <div class="stat-value">3,456</div>
+                <div>Active Pickups</div>
+                <div class="stat-change">+12% from last month</div>
+            </div>
+            <div class="stat-card revenue">
+                <div class="stat-value">₹18.4L</div>
+                <div>Monthly Revenue</div>
+                <div class="stat-change">+8.3% growth</div>
+            </div>
+            <div class="stat-card certificates">
+                <div class="stat-value">2,834</div>
+                <div>Certificates Issued</div>
+                <div class="stat-change">+156 today</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">📊 Overview</button>
+            <button class="tab-btn" onclick="showTab('users')">👥 Users</button>
+            <button class="tab-btn" onclick="showTab('collectors')">🚚 Collectors</button>
+            <button class="tab-btn" onclick="showTab('monitoring')">📡 Monitoring</button>
+            <button class="tab-btn" onclick="showTab('fraud')">🛡️ Fraud</button>
+            <button class="tab-btn" onclick="showTab('certificates')">🏆 Certificates</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview">
+            <div class="main-grid">
+                <div class="card">
+                    <h3><span class="card-icon">📋</span>Recent System Activity</h3>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon user">👤</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New User Registration</div>
+                            <div class="activity-desc">Priya Sharma from Mumbai</div>
+                        </div>
+                        <div class="activity-time">2 min ago</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon pickup">🚚</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Pickup Completed</div>
+                            <div class="activity-desc">Batch #BTH-2025-0234 processed</div>
+                        </div>
+                        <div class="activity-time">5 min ago</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon payment">💰</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Payment Processed</div>
+                            <div class="activity-desc">₹8,500 paid to John Doe</div>
+                        </div>
+                        <div class="activity-time">12 min ago</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon alert">⚠️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Anomaly Detected</div>
+                            <div class="activity-desc">Suspicious pickup pattern flagged</div>
+                        </div>
+                        <div class="activity-time">18 min ago</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="card-icon">🚨</span>System Alerts <span style="background: #4CAF50; color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.7rem; margin-left: 0.5rem;">3 Active</span></h3>
+                    
+                    <div class="alert-item high">
+                        <div class="alert-content">
+                            <div class="alert-title">High Priority: Server Load</div>
+                            <div class="alert-desc">API response time increased by 40%</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="resolveAlert(1)">Resolve</button>
+                    </div>
+                    
+                    <div class="alert-item medium">
+                        <div class="alert-content">
+                            <div class="alert-title">Medium: Pickup Delays</div>
+                            <div class="alert-desc">15 pickups delayed in Nagpur region</div>
+                        </div>
+                        <button class="btn btn-warning" onclick="resolveAlert(2)">Investigate</button>
+                    </div>
+                    
+                    <div class="alert-item low">
+                        <div class="alert-content">
+                            <div class="alert-title">Low: Certificate Queue</div>
+                            <div class="alert-desc">50+ certificates pending generation</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="resolveAlert(3)">Process</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div class="tab-content" id="users">
+            <div class="card">
+                <h3><span class="card-icon">👥</span>User Management</h3>
+                
+                <div class="monitoring-grid">
+                    <div class="monitor-item">
+                        <div class="monitor-value good">12,847</div>
+                        <div>Total Users</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">8,923</div>
+                        <div>Active Users</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value warning">156</div>
+                        <div>New This Week</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value danger">23</div>
+                        <div>Flagged Accounts</div>
+                    </div>
+                </div>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#USR-1234</td>
+                            <td>John Doe</td>
+                            <td>john.doe@email.com</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewUser('1234')">View</button>
+                                <button class="btn btn-warning" onclick="suspendUser('1234')">Suspend</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#USR-1235</td>
+                            <td>Priya Sharma</td>
+                            <td>priya.s@email.com</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewUser('1235')">View</button>
+                                <button class="btn btn-warning" onclick="suspendUser('1235')">Suspend</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Collectors Tab -->
+        <div class="tab-content" id="collectors">
+            <div class="card">
+                <h3><span class="card-icon">🚚</span>Collector Management</h3>
+                
+                <div class="monitoring-grid">
+                    <div class="monitor-item">
+                        <div class="monitor-value good">234</div>
+                        <div>Total Collectors</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">187</div>
+                        <div>Online Now</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">4.7 ⭐</div>
+                        <div>Avg Rating</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value warning">1,234</div>
+                        <div>Active Pickups</div>
+                    </div>
+                </div>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Collector ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Rating</th>
+                            <th>Today's Pickups</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#COL-234</td>
+                            <td>Rahul Kumar</td>
+                            <td><span class="status-badge status-active">Online</span></td>
+                            <td>⭐ 4.8</td>
+                            <td>8</td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewCollector('234')">View</button>
+                                <button class="btn btn-primary" onclick="trackCollector('234')">Track</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#COL-189</td>
+                            <td>Priya Singh</td>
+                            <td><span class="status-badge status-active">Online</span></td>
+                            <td>⭐ 4.6</td>
+                            <td>5</td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewCollector('189')">View</button>
+                                <button class="btn btn-primary" onclick="trackCollector('189')">Track</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Monitoring Tab -->
+        <div class="tab-content" id="monitoring">
+            <div class="card">
+                <h3><span class="card-icon">📡</span>System Monitoring</h3>
+                
+                <div class="monitoring-grid">
+                    <div class="monitor-item">
+                        <div class="monitor-value good">99.8%</div>
+                        <div>System Uptime</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">245ms</div>
+                        <div>Avg Response</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value warning">12.4k</div>
+                        <div>API Calls/Hour</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value danger">3</div>
+                        <div>Active Alerts</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h4>System Health Metrics</h4>
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>CPU Usage</span>
+                            <span style="font-weight: bold;">67%</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px;">
+                            <div style="width: 67%; height: 100%; background: #FF9800; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Memory Usage</span>
+                            <span style="font-weight: bold;">43%</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px;">
+                            <div style="width: 43%; height: 100%; background: #4CAF50; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="runDiagnostics()">🔧 Run Full Diagnostics</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud Detection Tab -->
+        <div class="tab-content" id="fraud">
+            <div class="card">
+                <h3><span class="card-icon">🛡️</span>Fraud Detection System</h3>
+                
+                <div class="monitoring-grid">
+                    <div class="monitor-item">
+                        <div class="monitor-value danger">23</div>
+                        <div>Flagged Activities</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value warning">156</div>
+                        <div>Anomalies Detected</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value danger">8</div>
+                        <div>High Risk Cases</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">97.8%</div>
+                        <div>Detection Accuracy</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h4>Recent Fraud Alerts</h4>
+                    <div class="alert-item high" style="margin-top: 1rem;">
+                        <div class="alert-content">
+                            <div class="alert-title">Suspicious Upload Pattern</div>
+                            <div class="alert-desc">User #USR-1289 uploaded 15 items in 10 minutes</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="investigateFraud(1)">Investigate</button>
+                    </div>
+                    
+                    <div class="alert-item medium">
+                        <div class="alert-content">
+                            <div class="alert-title">Weight Mismatch</div>
+                            <div class="alert-desc">Batch #BTH-0245 - 40% weight difference</div>
+                        </div>
+                        <button class="btn btn-warning" onclick="investigateFraud(2)">Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificates Tab -->
+        <div class="tab-content" id="certificates">
+            <div class="card">
+                <h3><span class="card-icon">🏆</span>Certificate Management</h3>
+                
+                <div class="monitoring-grid">
+                    <div class="monitor-item">
+                        <div class="monitor-value good">2,834</div>
+                        <div>Total Certificates</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value warning">47</div>
+                        <div>Pending Generation</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">156</div>
+                        <div>Issued Today</div>
+                    </div>
+                    <div class="monitor-item">
+                        <div class="monitor-value good">100%</div>
+                        <div>Blockchain Verified</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-success" onclick="processPending()">Process Pending</button>
+                    <button class="btn btn-primary" onclick="bulkGenerate()">Bulk Generate</button>
+                    <button class="btn btn-secondary" onclick="downloadReport()">Download Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function resolveAlert(alertId) {
+            const messages = {
+                1: 'Server load alert resolved - auto-scaling activated',
+                2: 'Pickup delays investigated - additional collectors assigned',
+                3: 'Certificate queue processed - all pending certificates generated'
+            };
+            
+            alert(messages[alertId]);
+            event.target.closest('.alert-item').style.display = 'none';
+        }
+
+        function viewUser(userId) {
+            alert(`User Details #USR-${userId}:\n\nName: Demo User\nEmail: user@example.com\nJoined: Jan 2025\nItems Recycled: 12\nTotal Rewards: ₹2,450`);
+        }
+
+        function suspendUser(userId) {
+            if (confirm(`Are you sure you want to suspend user #USR-${userId}?`)) {
+                alert(`User #USR-${userId} suspended successfully`);
+            }
+        }
+
+        function viewCollector(collectorId) {
+            alert(`Collector Details #COL-${collectorId}:\n\nName: Demo Collector\nRating: 4.8 ⭐\nTotal Earnings: ₹45,600\nPickups Today: 8\nStatus: Online`);
+        }
+
+        function trackCollector(collectorId) {
+            alert(`Tracking Collector #COL-${collectorId}:\n\n📍 Current Location: Nagpur Central\n🚚 Status: En Route to Pickup\n⏰ ETA: 15 minutes\n📱 Contact: 9876543210`);
+        }
+
+        function runDiagnostics() {
+            alert('Running system diagnostics...\n\n✅ Database: Healthy\n✅ API Services: Running\n✅ AI Models: Active\n⚠️ Storage: 78% used\n✅ Network: Stable\n\nOverall System Status: Good');
+        }
+
+        function investigateFraud(caseId) {
+            const cases = {
+                1: 'Investigation started for suspicious upload pattern.\nUser flagged for manual review.',
+                2: 'Weight mismatch case opened.\nCollector and recycler notified for verification.'
+            };
+            alert(cases[caseId]);
+        }
+
+        function processPending() {
+            alert('Processing 47 pending certificates...\n\nEstimated completion: 5 minutes\nAll users will be notified via SMS');
+        }
+
+        function bulkGenerate() {
+            alert('Bulk certificate generation started...\n\nProcessing all eligible recycling records\nExpected certificates: 156');
+        }
+
+        function downloadReport() {
+            alert('Generating certificate report...\n\nReport includes:\n- Certificate statistics\n- Blockchain verification status\n- User distribution\n\nDownload will start shortly');
+        }
+    </script>
+</body>
+</html>
